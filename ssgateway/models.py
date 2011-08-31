@@ -21,7 +21,7 @@ DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 Base = declarative_base()
 
 
-class Groups(Base):
+class Group(Base):
     __tablename__ = 'groups'
 
     id = Column(Integer, primary_key=True)
@@ -34,7 +34,7 @@ class Groups(Base):
         return '#<Group %s>' % self.name
 
 
-class Users(Base):
+class User(Base):
     """
     Users are authorized to log into the Gateway UI
     There are two different groupd, viewers and admins.
@@ -51,8 +51,8 @@ class Users(Base):
         ForeignKey('groups.id'))
 
     group = relation(
-        Groups,
-        primaryjoin=group_id == Groups.id)
+        Group,
+        primaryjoin=group_id == Group.id)
 
     def __init__(self,
                  name,

@@ -36,6 +36,14 @@ class DatabaseTest(unittest.TestCase):
                        True,
                        100)
 
+    def get_message(self):
+        from ssgateway.models import Message
+        return Message(datetime.now(), u'This is a test message', 18182124554)
+
+    def get_group(self):
+        from ssgateway.models import Group
+        return Group('admin')
+
     def test_assert_session(self):
         from sqlalchemy.orm.session import Session
         session = self.session
@@ -48,6 +56,38 @@ class DatabaseTest(unittest.TestCase):
         self.session.add(log)
         self.session.commit()
 
+    def test_group_creation(self):
+        from ssgateway.models import Group
+        g1 = self.get_group()
+        self.session.add(g1)
+        g2 = self.session.query(Group).first()
+        self.assertEqual(g1, g2)
+
+    def test_user_creation(self):
+        from ssgateway.models import User
+        u1 = User('ivan',
+                  'password',
+                  'iwillig@gmail.com',
+                  True,
+                  self.get_group())
+        self.session.add(u1)
+        u2 = self.session.query(User).first()
+        self.assertEqual(u1, u2)
+
+    def test_device_creation(self):
+        from ssgateway.models import Device
+        d1 = Device('id', 'password')
+        self.session.add(d1)
+        d2 = self.session.query(Device).first()
+        self.assertEqual(d1, d2)
+
+    def test_time_zone(self):
+        from ssgateway.models import TimeZone
+        t1 = TimeZone('EDT')
+        self.session.add(t1)
+        t2 = self.session.query(TimeZone).first()
+        self.assertEqual(t1, t2)
+
     def test_job_creation(self):
         from ssgateway.models import Job
         j1 = Job(datetime.now(), self.get_circuit(), True)
@@ -55,10 +95,6 @@ class DatabaseTest(unittest.TestCase):
         self.session.commit()
         j2 = self.session.query(Job).first()
         self.assertEqual(j1, j2)
-
-    def get_message(self):
-        from ssgateway.models import Message
-        return Message(datetime.now(), u'This is a test message', 18182124554)
 
     def test_message_creation(self):
         from ssgateway.models import Message
@@ -73,11 +109,20 @@ class DatabaseTest(unittest.TestCase):
         self.session.add(m1)
         m2 = self.session.query(Meter).first()
         self.assertEqual(m1, m2)
-        return m1
+
+    def test_account_creation(self):
+        from ssgateway.models import Account
+        a1 = self.get_account()
+        self.session.add(a1)
+        a2 = self.session.query(Account).first()
+        self.assertEqual(a1, a2)
 
     def test_circuit_creation(self):
+        from ssgateway.models import Circuit
         c1 = self.get_circuit()
         self.session.add(c1)
+        c2 = self.session.query(Circuit).first()
+        self.assertEqual(c1, c2)
 
     def test_pcu_log(self):
         from ssgateway.models import PCULog
