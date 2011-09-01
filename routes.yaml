@@ -1,0 +1,41 @@
+# configuration file for the shared solar message parser 
+
+classifers:
+  - name: consumer-message-numeric
+    classifer: ^[0-9]
+    parser: ssgateway.message.parsers.parse_consumer
+
+  - name: consummer-message-alphabetical
+    classifer: ^[A-Za-z]
+    parser: ssgateway.message.parsers.parse_consumer
+    
+  - name: meter-message-compressed
+    classifer: ^\(l.*\)$
+    parser: ssgateway.message.parsers.parse_meter_compressed
+
+  - name: meter-message-pcu
+    classifer: ^\(pcu*
+    parser: ssgateway.message.parsers.parse_meter_pcu
+
+  - name: meter-message-uncompressed
+    classifer: ^\(.*\)$
+    parser: ssgateway.message.parsers.parse_meter
+
+routes:
+  - name: ssgateway.message.routes.check_circuit_balance
+    commands: [^(bal).(\w+), ^(solde).(\w+), ^(2).(\w+)]
+
+  - name: ssgateway.message.routes.add_credit
+    commands: [ ^(add).(\w+).(\d+), ^(recharge).(\w+).(\d+), ^(9).(\w+).(\w+)]
+
+  - name: ssgateway.message.routes.turn_on
+    commands: [^(on).(\w+), ^(1).(\w+)]
+
+  - name: ssgateway.message.routes.turn_off
+    commands: [^(off).(\w+), ^(0).(\w+)]
+
+  - name: ssgateway.message.routes.set_primary_phone
+    commands: [^(prim).(\w+), ^(tel).(\w+), ^(4).(\w+)]
+
+  - name: ssgateway.message.routes.get_user_history
+    commands: [^(use).(\w+), ^(3).(\w+)]
