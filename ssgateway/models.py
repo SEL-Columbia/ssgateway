@@ -25,7 +25,7 @@ class Group(Base):
     __tablename__ = 'groups'
 
     id = Column(Integer, primary_key=True)
-    name = Column(Unicode(100))
+    name = Column(Unicode(100), unique=True)
 
     def __init__(self, name):
         self.name = name
@@ -42,7 +42,7 @@ class User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
-    name = Column(Unicode(100))
+    name = Column(Unicode(100), unique=True)
     password = Column(Unicode(100))
     email = Column(Unicode(100))
     notify = Column(Boolean)
@@ -76,8 +76,8 @@ class Device(Base):
     """ Devices are Android tablets that can request tokens from the Gateway"""
     __tablename__ = 'devices'
     id = Column(Integer, primary_key=True)
-    device_id = Column(Unicode(100))
-    password = Column(Unicode(100))
+    device_id = Column(Unicode(100), unique=True)
+    password = Column(Unicode(100), )
 
     def __init__(self, device_id, password):
         self.device_id = device_id
@@ -92,7 +92,7 @@ class TimeZone(Base):
     This is important for making sense of timestamps"""
     __tablename__ = 'time_zones'
     id = Column(Integer, primary_key=True)
-    zone = Column(Unicode(256), unique=True)
+    zone = Column(Unicode(256))
 
     def __init__(self, zone):
         self.zone = zone
@@ -122,6 +122,7 @@ class Meter(Base):
                  name,
                  phone,
                  location,
+                 time_zone,
                  status,
                  date_added,
                  battery_capacity,
@@ -132,10 +133,14 @@ class Meter(Base):
         self.date_added = date_added
         self.battery_capacity = battery_capacity
         self.panel_capacity = panel_capacity
+        self.time_zone = time_zone
 
     def __repr__(self):
         return '#<Meter %s>' % self.name
 
+    def get_circuits(self):
+        session = DBSession()
+        return session.query(Circuit).filter_by(meter=self).order_by(Circuit.ip_address)
 
 class Account(Base):
     """
@@ -205,6 +210,14 @@ class Circuit(Base):
         ints = '23456789'
         return ''.join(random.sample(ints, 6))
 
+    def get_last_log(self):
+        session = DBSession()
+        return session.query(PrimaryLog)\
+            .filter_by(circuit=self)\
+            .order_by(PrimaryLog.meter_time.desc()).first()
+
+    def __repr__(self):
+        return '#<Circuit %s>' % self.id
 
 class Message(Base):
     """
@@ -231,7 +244,7 @@ class TokenBatch(Base):
     """
     __tablename__ = "tokenbatch"
     id = Column(Integer, primary_key=True)
-    created = Column(DateTime)
+    created = Column(DateTime)  # change to date_added
 
     def __init__(self, created):
         self.created = created
@@ -333,9 +346,13 @@ class UnresponsiveCircuit(Alert):
     last_heard_from = Column(Float)
 
     def __init__(self, date, meter, circuit, last_head_from):
-        Alert.__init__(self, date,)
+        Alert.__init__(self,
+                       date,
+                       meter,
+                       circuit=circuit,
+                       origin_message=None,
+                       consumer_message=None)
         self.last_heard_from = last_head_from
-        self.circuit = circuit
 
 
 class PowerMax(Alert):

@@ -8,12 +8,10 @@ def main(global_config, **settings):
     """
     initialize_sql(settings.get('sqlalchemy.url'), echo=False)
 
+
     config = Configurator(settings=settings)
-
     config.add_static_view('static', 'ssgateway:static')
-
     config.add_route('home', '/')
-
     config.add_view('ssgateway.views.index',
                     route_name='home',
                     renderer='index.mako')

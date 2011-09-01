@@ -1,11 +1,6 @@
-"""
-Views functions for SharedSolar Gateway
-"""
 from ssgateway.models import DBSession
 from ssgateway.models import Meter
-
+from webob import Response
 
 def index(request):
-    session = DBSession()
-    meters = session.query(Meter).all()
-    return {'meters': meters}
+    return Response('')

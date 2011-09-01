@@ -8,24 +8,30 @@ class DatabaseTest(unittest.TestCase):
         from ssgateway.models import load_testing_sql
         self.session = load_testing_sql('sqlite:///:memory:')()
 
-    def get_account(self):
+    def _get_account(self):
         from ssgateway.models import Account
-        return Account('ivan willig', 8182124554, 'en')
+        return Account(u'ivan willig', 8182124554, u'en')
 
-    def get_meter(self):
+    def _get_time_zone(self):
+        from ssgateway.models import TimeZone
+        return TimeZone(u'EDT')
+
+    def _get_meter(self):
         from ssgateway.models import Meter
-        return Meter(u'test',
-                     123456,
-                     u'New York city',
-                     True,
-                     datetime.now(),
-                     100,
-                     100)
+        return Meter(u'test',  # name
+                     123456,  # phone number
+                     u'New York city',  # string rep of location
+                     self._get_time_zone(),  # time zone
+                     True,  # status ? kind of a usless field
+                     datetime.now(),  # date added
+                     100,  # battery capacity
+                     100  # panel capacity
+                     )
 
-    def get_circuit(self):
+    def _get_circuit(self):
         from ssgateway.models import Circuit
-        meter = self.get_meter()
-        a = self.get_account()
+        meter = self._get_meter()
+        a = self._get_account()
         return Circuit(meter,
                        a,
                        datetime.now(),
@@ -36,23 +42,23 @@ class DatabaseTest(unittest.TestCase):
                        True,
                        100)
 
-    def get_message(self):
+    def _get_message(self):
         from ssgateway.models import Message
         return Message(datetime.now(), u'This is a test message', 18182124554)
 
     def get_group(self):
         from ssgateway.models import Group
-        return Group('admin')
+        return Group(u'admin')
 
     def test_assert_session(self):
         from sqlalchemy.orm.session import Session
         session = self.session
-        self.assertTrue(isinstance(session, Session))
+        self.assertIsInstance(session, Session)
 
     def test_log_creation(self):
         from ssgateway.models import Log
         log = Log(datetime.now())
-        self.assertTrue(isinstance(log, Log))
+        self.assertIsInstance(log, Log)
         self.session.add(log)
         self.session.commit()
 
@@ -65,9 +71,9 @@ class DatabaseTest(unittest.TestCase):
 
     def test_user_creation(self):
         from ssgateway.models import User
-        u1 = User('ivan',
-                  'password',
-                  'iwillig@gmail.com',
+        u1 = User(u'ivan',
+                  u'password',
+                  u'iwillig@gmail.com',
                   True,
                   self.get_group())
         self.session.add(u1)
@@ -76,21 +82,21 @@ class DatabaseTest(unittest.TestCase):
 
     def test_device_creation(self):
         from ssgateway.models import Device
-        d1 = Device('id', 'password')
+        d1 = Device(u'id', u'password')
         self.session.add(d1)
         d2 = self.session.query(Device).first()
         self.assertEqual(d1, d2)
 
     def test_time_zone(self):
         from ssgateway.models import TimeZone
-        t1 = TimeZone('EDT')
+        t1 = self._get_time_zone()
         self.session.add(t1)
         t2 = self.session.query(TimeZone).first()
         self.assertEqual(t1, t2)
 
     def test_job_creation(self):
         from ssgateway.models import Job
-        j1 = Job(datetime.now(), self.get_circuit(), True)
+        j1 = Job(datetime.now(), self._get_circuit(), True)
         self.session.add(j1)
         self.session.commit()
         j2 = self.session.query(Job).first()
@@ -98,35 +104,35 @@ class DatabaseTest(unittest.TestCase):
 
     def test_message_creation(self):
         from ssgateway.models import Message
-        m1 = self.get_message()
+        m1 = self._get_message()
         self.session.add(m1)
         m2 = self.session.query(Message).first()
         self.assertEqual(m1, m2)
 
     def test_meter_creation(self):
         from ssgateway.models import Meter
-        m1 = self.get_meter()
+        m1 = self._get_meter()
         self.session.add(m1)
         m2 = self.session.query(Meter).first()
         self.assertEqual(m1, m2)
 
     def test_account_creation(self):
         from ssgateway.models import Account
-        a1 = self.get_account()
+        a1 = self._get_account()
         self.session.add(a1)
         a2 = self.session.query(Account).first()
         self.assertEqual(a1, a2)
 
     def test_circuit_creation(self):
         from ssgateway.models import Circuit
-        c1 = self.get_circuit()
+        c1 = self._get_circuit()
         self.session.add(c1)
         c2 = self.session.query(Circuit).first()
         self.assertEqual(c1, c2)
 
     def test_pcu_log(self):
         from ssgateway.models import PCULog
-        m = self.get_meter()
+        m = self._get_meter()
         l1 = PCULog(
             datetime.now(),
             datetime.now(),
@@ -144,15 +150,15 @@ class DatabaseTest(unittest.TestCase):
     def test_primary_log(self):
         from ssgateway.models import PrimaryLog
         pl = PrimaryLog(
-            self.get_circuit(), datetime.now(), datetime.now(),
+            self._get_circuit(), datetime.now(), datetime.now(),
             10, 10, 10, True)
         self.session.add(pl)
 
     def test_alert_creation(self):
         from ssgateway.models import Alert
-        meter = self.get_meter()
-        circuit = self.get_circuit()
-        message = self.get_message()
+        meter = self._get_meter()
+        circuit = self._get_circuit()
+        message = self._get_message()
         a1 = Alert(datetime.now(), meter, circuit, message, message)
         self.session.add(a1)
         a2 = self.session.query(Alert).first()

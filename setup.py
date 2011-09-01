@@ -9,10 +9,12 @@ CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
 requires = [
     'pyramid',
+    'pyyaml',
     'nose',
     'coverage',
     'sqlalchemy-migrate',
     'SQLAlchemy',
+    'simplejson',
     'transaction',
     'pyramid_tm',
     'pyramid_debugtoolbar',
@@ -42,6 +44,11 @@ setup(name='ssgateway',
       test_suite='ssgateway',
       install_requires = requires,
       entry_points = """\
+      [paste.paster_command]
+
+      ss-run-message = ssgateway.commands:RunMessage
+      ss-mroutes = ssgateway.commands:PrintRoutes
+
       [paste.app_factory]
       main = ssgateway:main
       """,
