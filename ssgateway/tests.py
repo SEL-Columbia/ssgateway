@@ -47,12 +47,12 @@ class DatabaseTest(unittest.TestCase):
     def test_assert_session(self):
         from sqlalchemy.orm.session import Session
         session = self.session
-        self.assertIsInstance(session, Session)
+        self.assertTrue(isinstance(session, Session))
 
     def test_log_creation(self):
         from ssgateway.models import Log
         log = Log(datetime.now())
-        self.assertIsInstance(log, Log)
+        self.assertTrue(isinstance(log, Log))
         self.session.add(log)
         self.session.commit()
 
