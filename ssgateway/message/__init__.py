@@ -19,16 +19,15 @@ log.addHandler(handler)
 
 def log_function(f):
     def wrap(*args):
-        log.info('Calling %s with --> %s' % (f.__name__, args[0]))
+        #log.info('Calling %s with --> %s' % (f.__name__, args[0]))
         results = apply(f, args)
-        log.info('Returning %s with--> %s' % (f.__name__, results))
+        #log.info('Returning %s with--> %s' % (f.__name__, results))
         return results
     return wrap
 
 
 @log_function
 def initial_parse(raw_message):
-    print 'stuff'
     c = {}
     for key, value in parse_qs(raw_message).iteritems():
         c[key] = value[0]

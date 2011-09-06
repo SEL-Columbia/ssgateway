@@ -163,3 +163,7 @@ class DatabaseTest(unittest.TestCase):
         self.session.add(a1)
         a2 = self.session.query(Alert).first()
         self.assertEqual(a1, a2)
+
+
+if __name__ == '__main__':
+    unittest.main()
