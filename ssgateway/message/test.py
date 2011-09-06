@@ -23,7 +23,7 @@ class UnitxTests(unittest.TestCase):
 
     def test_initial_parse(self):
         m = self._get_parsed()
-        self.assertIsInstance(m, dict)
+        self.assertTrue(isinstance(m, dict))
         self.assertEqual(m['body'], 'bal.12345')
         self.assertEqual(m['address'], '18182124554')
 
