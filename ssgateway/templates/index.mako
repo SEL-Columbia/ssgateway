@@ -1,14 +1,14 @@
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-  <head>
-    
-  </head>
-  <body>
+<%inherit file="base.mako"/>
 
-    <ul>
-    % for m in meters:
-      <li>${m}</li>
-    % endfor
-    </ul>
+<%def name="header()">
 
-  </body>
-</html>
+</%def>
+
+<%def name="body()">
+
+<a class="btn primary" href="/list-meters">List Meters</a>
+<a class="btn primary" href="list-alerts">List Alerts</a>
+<a class="btn primary" href="/list-all-messages">
+  List all recent SMS messages </a>
+
+</%def>

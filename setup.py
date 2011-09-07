@@ -15,6 +15,7 @@ requires = [
     'sqlalchemy-migrate',
     'SQLAlchemy',
     'simplejson',
+    'deform',
     'transaction',
     'pyramid_tm',
     'pyramid_debugtoolbar',

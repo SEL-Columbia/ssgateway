@@ -1,5 +1,22 @@
 import unittest
 from datetime import datetime
+from pyramid import testing
+
+
+class WebViewTest(unittest.TestCase):
+
+    def setUp(self):
+
+        self.config = testing.setUp()
+
+    def tearDown(self):
+        testing.tearDown()
+
+    def test_index(self):
+        from ssgateway.views import index
+        request = testing.DummyRequest()
+        response = index(request)
+        self.assertTrue('meters' in response)
 
 
 class DatabaseTest(unittest.TestCase):

@@ -30,6 +30,8 @@ def main(global_config, **settings):
     config.add_static_view('static', 'ssgateway:static')
 
     config.add_route('index', '/')
+    config.add_route('login', '/login')
+
     config.scan()
 
     return config.make_wsgi_app()
