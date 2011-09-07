@@ -28,9 +28,10 @@ class DatabaseTest(unittest.TestCase):
                      100  # panel capacity
                      )
 
-    def _get_circuit(self):
+    def _get_circuit(self, meter=None):
         from ssgateway.models import Circuit
-        meter = self._get_meter()
+        if meter is None:
+            meter = self._get_meter()
         a = self._get_account()
         return Circuit(meter,
                        a,
@@ -46,14 +47,30 @@ class DatabaseTest(unittest.TestCase):
         from ssgateway.models import Message
         return Message(datetime.now(), u'This is a test message', 18182124554)
 
-    def get_group(self):
-        from ssgateway.models import Group
-        return Group(u'admin')
+    def _get_job(self):
+        from ssgateway.models import Job
+        return Job(datetime.now(), self._get_circuit(), False)
+
+    def _get_batch(self):
+        from ssgateway.models import TokenBatch
+        return TokenBatch(datetime.now())
+
+    def _get_token(self):
+        from ssgateway.models import Token
+        return Token(datetime.now(),
+                      123123213,
+                      self._get_batch(),
+                      100,
+                      'new')
 
     def test_assert_session(self):
         from sqlalchemy.orm.session import Session
         session = self.session
         self.assertTrue(isinstance(session, Session))
+
+    def get_group(self):
+        from ssgateway.models import Group
+        return Group(u'admin')
 
     def test_log_creation(self):
         from ssgateway.models import Log
@@ -115,6 +132,7 @@ class DatabaseTest(unittest.TestCase):
         self.session.add(m1)
         m2 = self.session.query(Meter).first()
         self.assertEqual(m1, m2)
+        self.assertEqual(m1.get_circuits().count(), 0)
 
     def test_account_creation(self):
         from ssgateway.models import Account
@@ -129,6 +147,7 @@ class DatabaseTest(unittest.TestCase):
         self.session.add(c1)
         c2 = self.session.query(Circuit).first()
         self.assertEqual(c1, c2)
+        self.assertEqual(c1.get_last_log(), None)
 
     def test_pcu_log(self):
         from ssgateway.models import PCULog
@@ -164,6 +183,93 @@ class DatabaseTest(unittest.TestCase):
         a2 = self.session.query(Alert).first()
         self.assertEqual(a1, a2)
 
+    def test_token(self):
+        from ssgateway.models import Token
+        token = self._get_token()
+        self.session.add(token)
+        self.assertTrue(isinstance(Token.get_random(), int))
+
+    def test_unresponsive_circuit(self):
+        from ssgateway.models import UnresponsiveCircuit
+        alert = UnresponsiveCircuit(datetime.now(),
+                                    self._get_meter(),
+                                    self._get_circuit(),
+                                    datetime.now())
+        self.session.add(alert)
+
+    def test_power_max_alert(self):
+        from ssgateway.models import PowerMax
+        alert = PowerMax(datetime.now(),
+                         self._get_meter(),
+                         self._get_circuit(),
+                         self._get_message(),
+                         self._get_message())
+        self.session.add(alert)
+
+    def test_energy_max(self):
+        from ssgateway.models import EnergyMax
+        alert = EnergyMax(datetime.now(),
+                         self._get_meter(),
+                         self._get_circuit(),
+                         self._get_message(),
+                         self._get_message())
+        self.session.add(alert)
+
+    def test_low_credit(self):
+        from ssgateway.models import LowCredit
+        alert = LowCredit(datetime.now(),
+                         self._get_meter(),
+                         self._get_circuit(),
+                         self._get_message(),
+                         self._get_message())
+        self.session.add(alert)
+
+    def test_no_credit(self):
+        from ssgateway.models import NoCredit
+        alert = NoCredit(datetime.now(),
+                         self._get_meter(),
+                         self._get_circuit(),
+                         self._get_message(),
+                         self._get_message())
+        self.session.add(alert)
+
+    def test_unresponsive_job(self):
+        from ssgateway.models import UnresponsiveJob
+        alert = UnresponsiveJob(datetime.now(),
+                                self._get_meter(),
+                                self._get_circuit(),
+                                self._get_job())
+        self.session.add(alert)
+
+    def test_add_credit(self):
+        from ssgateway.models import AddCredit
+        job = AddCredit(datetime.now(),
+                        self._get_circuit(),
+                        True,
+                        1000,
+                        self._get_token())
+        self.session.add(job)
+
+    def test_turn_off(self):
+        from ssgateway.models import TurnOff
+        job = TurnOff(datetime.now(),
+                      self._get_circuit(),
+                      True)
+        self.session.add(job)
+
+    def test_turn_on(self):
+        from ssgateway.models import TurnOn
+        job = TurnOn(datetime.now(),
+                     self._get_circuit(),
+                     True)
+        self.session.add(job)
+
+    def test_c_ping(self):
+        from ssgateway.models import Cping
+        job = Cping(datetime.now(),
+                    self._get_circuit(),
+                    True)
+        self.session.add(job)
 
 if __name__ == '__main__':
     unittest.main()
