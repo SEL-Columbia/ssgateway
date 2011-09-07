@@ -13,10 +13,10 @@ def upgrade(migrate_engine):
     """
     meta.bind = migrate_engine
     date = table.c['date']
-    date.alter(name='gateway_time')
+    date.alter(name='meter_time')
 
 
 def downgrade(migrate_engine):
     meta.bind = migrate_engine
-    date = table.c['gateway_time']
-    date.alert(name='date')
+    date = table.c['meter_time']
+    date.alter(name='date')
