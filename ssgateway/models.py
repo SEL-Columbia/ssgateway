@@ -140,7 +140,9 @@ class Meter(Base):
 
     def get_circuits(self):
         session = DBSession()
-        return session.query(Circuit).filter_by(meter=self).order_by(Circuit.ip_address)
+        return session.query(Circuit)\
+            .filter_by(meter=self).order_by(Circuit.ip_address)
+
 
 class Account(Base):
     """
@@ -219,6 +221,7 @@ class Circuit(Base):
     def __repr__(self):
         return '#<Circuit %s>' % self.id
 
+
 class Message(Base):
     """
     Abstract class for all messages
@@ -264,7 +267,7 @@ class Token(Base):
     value = Column(Numeric)
     state = Column(Unicode)
     batch_id = Column(Integer, ForeignKey('tokenbatch.id'))
-    batch = relation(TokenBatch, lazy=False,
+    batch = relation(TokenBatch,
                       primaryjoin=batch_id == TokenBatch.id)
 
     def __init__(self, created, token, batch, value, state):
@@ -426,7 +429,12 @@ class UnresponsiveJob(Alert):
     job = relation(Job, primaryjoin=job_id == Job.id)
 
     def __init__(self, date, meter, circuit, job):
-        Alert.__init__(self, date, meter, circuit=circuit)
+        Alert.__init__(self,
+                       date,
+                       meter,
+                       circuit=circuit,
+                       origin_message=None,
+                       consumer_message=None)
         self.job = job
 
 
@@ -548,8 +556,8 @@ class AddCredit(Job):
     token_id = Column(Integer, ForeignKey('token.id'))
     token = relation(Token, primaryjoin=token_id == Token.id)
 
-    def __init__(self, credit, circuit, token):
-        Job.__init__(self, circuit)
+    def __init__(self, date, circuit, state, credit, token):
+        Job.__init__(self, date, circuit, state)
         self.credit = credit
         self.token = token
 
@@ -564,8 +572,8 @@ class TurnOff(Job):
 
     id = Column(Integer, ForeignKey('jobs.id'), primary_key=True)
 
-    def __init__(self, circuit):
-        Job.__init__(self, circuit)
+    def __init__(self, date, circuit, state):
+        Job.__init__(self, date, circuit, state)
 
     def __repr__(self):
         return '(job=coff&jobid=%s&cid=%s)' \
@@ -578,8 +586,8 @@ class TurnOn(Job):
 
     id = Column(Integer, ForeignKey('jobs.id'), primary_key=True)
 
-    def __init__(self, circuit):
-        Job.__init__(self, circuit)
+    def __init__(self, date, circuit, state):
+        Job.__init__(self, date, circuit, state)
 
     def __repr__(self):
         return '(job=con&jobid=%s&cid=%s)' % (self.id, self.circuit.ip_address)
@@ -592,8 +600,8 @@ class Mping(Job):
 
     id = Column(Integer, ForeignKey('jobs.id'), primary_key=True)
 
-    def __init__(self, meter):
-        Job.__init__(self, self.getMain(meter))
+    def __init__(self, date, meter, state):
+        Job.__init__(self, date, self.getMain(meter), state)
 
     def getMain(self, meter):
         return meter.get_circuits()[0]
@@ -609,8 +617,8 @@ class Cping(Job):
 
     id = Column(Integer, ForeignKey('jobs.id'), primary_key=True)
 
-    def __init__(self, circuit=None):
-        Job.__init__(self, circuit)
+    def __init__(self, date, circuit, state):
+        Job.__init__(self, date, circuit, state)
 
     def __repr__(self):
         return '(job=cping&jobid=%s&cid=%s)' % (self.id,
@@ -644,6 +652,7 @@ def initialize_sql(settings, echo=False):
     Base.metadata.bind = engine
     Base.metadata.create_all(engine)
     return engine
+
 
 def load_testing_sql(settings, echo=False):
     engine = create_engine(settings, echo=echo)

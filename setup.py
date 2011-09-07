@@ -18,6 +18,7 @@ requires = [
     'transaction',
     'pyramid_tm',
     'pyramid_debugtoolbar',
+    'pyramid_beaker',
     'zope.sqlalchemy',
     ]
 
