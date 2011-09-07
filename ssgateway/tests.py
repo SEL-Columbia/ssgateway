@@ -187,7 +187,8 @@ class DatabaseTest(unittest.TestCase):
         from ssgateway.models import Token
         token = self._get_token()
         self.session.add(token)
-        self.assertTrue(isinstance(Token.get_random(), int))
+        t2 = self.session.query(Token).first()
+        self.assertEqual(token, t2)
 
     def test_unresponsive_circuit(self):
         from ssgateway.models import UnresponsiveCircuit
