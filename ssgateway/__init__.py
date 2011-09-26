@@ -27,11 +27,18 @@ def main(global_config, **settings):
     session_factory = session_factory_from_settings(settings)
     config.set_session_factory(session_factory)
 
+    # add the static url for development
     config.add_static_view('static', 'ssgateway:static')
 
+    # add the routes
     config.add_route('index', '/')
     config.add_route('login', '/login')
+    config.add_route('logout', '/logout')
+
+    config.add_route('admin-users', '/admin/users')
+    # end routes
 
     config.scan()
 
+    # return the wsgi application
     return config.make_wsgi_app()
