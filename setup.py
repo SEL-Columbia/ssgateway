@@ -10,12 +10,12 @@ CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 requires = [
     'pyramid',
     'pyyaml',
+    'colander',
     'nose',
     'coverage',
     'sqlalchemy-migrate',
     'SQLAlchemy',
     'simplejson',
-    'deform',
     'transaction',
     'pyramid_tm',
     'pyramid_debugtoolbar',
@@ -23,13 +23,13 @@ requires = [
     'zope.sqlalchemy',
     ]
 
-if sys.version_info[:3] < (2,5,0):
+if sys.version_info[:3] < (2, 5, 0):
     requires.append('pysqlite')
 
 setup(name='ssgateway',
       version='0.0',
       description='ssgateway',
-      long_description=README + '\n\n' +  CHANGES,
+      long_description=README + '\n\n' + CHANGES,
       classifiers=[
         "Programming Language :: Python",
         "Framework :: Pylons",
@@ -44,16 +44,16 @@ setup(name='ssgateway',
       include_package_data=True,
       zip_safe=False,
       test_suite='ssgateway',
-      install_requires = requires,
-      entry_points = """\
-      [paste.paster_command]
+      install_requires=requires,
+      entry_points="""\
 
-      ss-run-message = ssgateway.commands:RunMessage
-      ss-mroutes = ssgateway.commands:PrintRoutes
+      [console_scripts]
+      export-table = ssgateway.commands:export_table
+      import-table = ssgateway.commands:import_table
+      run-message  = ssgateway.commands:run_message
 
       [paste.app_factory]
       main = ssgateway:main
       """,
       paster_plugins=['pyramid'],
       )
-
