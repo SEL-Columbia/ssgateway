@@ -23,19 +23,22 @@ classifers:
 
 routes:
   - name: ssgateway.message.routes.check_circuit_balance
-    commands: [^(bal).(\w+), ^(solde).(\w+), ^(2).(\w+)]
+    commands: [bal, solde, 2]
 
   - name: ssgateway.message.routes.add_credit
-    commands: [ ^(add).(\w+).(\d+), ^(recharge).(\w+).(\d+), ^(9).(\w+).(\w+)]
+    commands: [add, recharge, 9]
 
   - name: ssgateway.message.routes.turn_on
-    commands: [^(on).(\w+), ^(1).(\w+)]
+    commands: [on, 1]
 
   - name: ssgateway.message.routes.turn_off
-    commands: [^(off).(\w+), ^(0).(\w+)]
+    commands: [off, 0]
 
   - name: ssgateway.message.routes.set_primary_phone
-    commands: [^(prim).(\w+), ^(tel).(\w+), ^(4).(\w+)]
+    commands: [prim, tel, 4]
 
   - name: ssgateway.message.routes.get_user_history
-    commands: [^(use).(\w+), ^(3).(\w+)]
+    commands: [use, 3]
+
+  - name: ssgateway.message.routes.meter.alert_meter_online
+    commands: [online]
