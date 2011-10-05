@@ -1,11 +1,9 @@
 import re
-
 from logging import getLogger
 from logging import Formatter
 from logging import StreamHandler
 from logging import DEBUG
 
-from urlparse import parse_qs
 
 log = getLogger('ssgateway.message.main')
 log.setLevel(DEBUG)
@@ -17,6 +15,14 @@ handler.setFormatter(formatter)
 log.addHandler(handler)
 
 
+def _import_func(func_str):
+    import importlib
+    # split the func path
+    func_path = func_str.split('.')
+    module = importlib.import_module('.'.join(func_path[:-1]))
+    return getattr(module, func_path[-1])
+
+
 def log_function(f):
     def wrap(*args):
         #log.info('Calling %s with --> %s' % (f.__name__, args[0]))
@@ -24,14 +30,6 @@ def log_function(f):
         #log.info('Returning %s with--> %s' % (f.__name__, results))
         return results
     return wrap
-
-
-@log_function
-def initial_parse(raw_message):
-    c = {}
-    for key, value in parse_qs(raw_message).iteritems():
-        c[key] = value[0]
-    return c
 
 
 @log_function
@@ -45,43 +43,47 @@ def classify(message, config):
 
 @log_function
 def final_parse(message):
-    import importlib
-    parser_path = message['classification']['parser'].split('.')
-
-    module = importlib.import_module('.'.join(parser_path[:-1]))
-    parser_func = getattr(module, parser_path[-1])
+    parser_func = _import_func(message['classification']['parser'])
     return parser_func(message)
 
 
 @log_function
 def route_message(message, config):
     for route in config['routes']:
-        for match in route['matchers']:
-            if re.match(match, message.get('body')):
+        for command in route['commands']:
+            if command == message['command']:
+                log.info('Assoc message with route: %s' % route)
                 message['route'] = route
                 return message
     return message
 
 
-# @log_function
-# def invoke_route(message):
-#     route_name = message['route']['name']
-#     route_func = getattr(routes, route_name)
-#     return route_func(message)
+def invoke_route(message):
+    log.info('Invoking message with route')
+    route = _import_func(message['route']['name'])
+    route(message)
 
 
 def main(config):
     """
     """
-    assert config
-    log.info('Loading message-router with %s config file' % config)
+    assert isinstance(config, dict)
+    # log.info('Loading message-router with %s config file' % config)
 
     def call_route(message):
+        """
+        A message is a python dict object that has two required keys
+           phone-number: should be a unicode of a person's number
+           body: should be a unicode object of the message body
+
+        """
         log.info(message)
-        assert len(message) is not 0
-        assert isinstance(message, str)
-        final_parse(
-            classify(
-                initial_parse(message), config)
-            ), config
+        assert 'phone-number' in message
+        assert 'body' in message
+
+        final_message = route_message(
+            final_parse(
+                classify(message, config)
+                ), config)
+        invoke_route(final_message)
     return call_route

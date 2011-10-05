@@ -3,8 +3,6 @@ from pyramid_beaker import session_factory_from_settings
 from pyramid.config import Configurator
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
-
-
 from ssgateway.models import initialize_sql
 
 
