@@ -45,7 +45,6 @@ class User(Base):
     name = Column(Unicode(100), unique=True)
     password = Column(Unicode(100))
     email = Column(Unicode(100))
-    notify = Column(Boolean)
     group_id = Column(
         Integer,
         ForeignKey('groups.id'))
@@ -58,17 +57,15 @@ class User(Base):
                  name,
                  password,
                  email,
-                 notify,
                  group):
         self.name = name
         if password is not None:
             hash = hashlib.md5(password).hexdigest()
         self.password = hash
         self.email = email
-        self.notify = notify
         self.group = group
 
-    def __repr_(self):
+    def __repr__(self):
         return '#<User %s>' % self.name
 
 

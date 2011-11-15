@@ -27,13 +27,19 @@ def main(global_config, **settings):
 
     # add the static url for development
     config.add_static_view('static', 'ssgateway:static')
+    config.add_static_view('deform', 'deform:static')
 
     # add the routes
     config.add_route('index', '/')
     config.add_route('login', '/login')
     config.add_route('logout', '/logout')
 
+    # admin interface for users
     config.add_route('admin-users', '/admin/users')
+    config.add_route('new-user', '/admin/user/new')
+    config.add_route('edit-user', '/admin/user/{user}/edit')
+    # manage groups
+    config.add_route('new-group', '/admin/group/new')
     # end routes
 
     config.scan()
