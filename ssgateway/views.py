@@ -64,7 +64,8 @@ def new_user(request):
     if request.method == 'POST':
         try:
             data = form.validate(request.POST.items())
-            user = User(*data.values())
+            group = session.query(Group).get(data['group_id'])
+            user = User(data['name'], data['password'], data['email'], group)
             session.add(user)
             session.flush()
             return HTTPFound(
