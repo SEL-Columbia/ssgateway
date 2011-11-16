@@ -17,12 +17,19 @@ class AddUserForm(Form):
     group_id = SelectField('Admin group', coerce=int)
 
 
+class EditUserForm(Form):
+    name = TextField('Username', [validators.Length(min=4, max=25)])
+    email = TextField('Email', [])
+    group_id = SelectField('Admin group', coerce=int)
+
+
 class AddMeterForm(Form):
     name = TextField('Meter name')
     phone = TextField('Meter Phone')
     location = TextField('Meter Location')
     battery_capacity = DecimalField('Batter Capacity')
     panel_capacity = DecimalField('Panel Capacity')
+    time_zone = SelectField('Meter time zone', coerce=int)
     number_of_circuits = DecimalField('Number of circuits')
     emax = DecimalField('Energy max for circuits')
     pmax = DecimalField('Power max for circuits')

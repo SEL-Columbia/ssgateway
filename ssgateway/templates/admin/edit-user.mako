@@ -6,6 +6,9 @@
 
 <%def name="body()">
 ${user}
-${forms.make_form(form, 'Update user information')}
+<form method="POST" action="${request.route_url('edit-user', user=user.id)}">
+  ${forms.make_form(form, 'Update user information')}
+</form>
+
 
 </%def>
