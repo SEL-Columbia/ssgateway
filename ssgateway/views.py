@@ -11,7 +11,7 @@ from ssgateway.models import Group
 
 def get_object_or_404(kls, id):
     if id is None:
-        raise HTTPNotFound('No id provided look up')
+        raise HTTPNotFound('No id provided')
     session = DBSession()
     obj = session.query(kls).get(id)
     if obj is None:
@@ -54,11 +54,15 @@ def new_user(request):
 
 @view_config(route_name='edit-user', renderer='admin/edit-user.mako')
 def edit_user(request):
+    session = DBSession()
     user = get_object_or_404(User, request.matchdict.get('user', None))
+    form = AddUserForm(request.POST, obj=user)
+    form.group_id.choices = [
+        [group.id, group.name] for group in session.query(Group).all()]
     if request.method == 'POST':
         return {}
     elif request.method == 'GET':
-        return {'user': user}
+        return {'user': user, 'form': form}
 
 
 @view_config(route_name='new-group', renderer='admin/new-group.mako')
