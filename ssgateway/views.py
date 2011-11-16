@@ -7,6 +7,7 @@ from ssgateway.models import DBSession
 from ssgateway.models import Meter
 from ssgateway.models import User
 from ssgateway.models import Group
+# from ssgateway.models import PrimaryLog
 
 
 def get_object_or_404(kls, id):
@@ -55,17 +56,18 @@ def new_user(request):
 @view_config(route_name='edit-user', renderer='admin/edit-user.mako')
 def edit_user(request):
     session = DBSession()
-    user = get_object_or_404(User, request.matchdict.get('user', None))
+    user = get_object_or_404(User, request.matchdict.get('user'))
     form = AddUserForm(request.POST, obj=user)
     form.group_id.choices = [
         [group.id, group.name] for group in session.query(Group).all()]
-    if request.method == 'POST':
+    if request.method == 'POST' and form.validate():
         return {}
-    elif request.method == 'GET':
+    else:
         return {'user': user, 'form': form}
 
 
-@view_config(route_name='new-group', renderer='admin/new-group.mako')
+@view_config(route_name='new-group',
+             renderer='admin/new-group.mako', permission='admin')
 def new_group(request):
     session = DBSession()
     form = GroupForm(request.POST)
@@ -75,3 +77,10 @@ def new_group(request):
         return HTTPFound(location=request.route_url('admin-users'))
     else:
         return {'form': form}
+
+
+@view_config(route_name='list-meters', renderer='list-meters.mako')
+def list_metes(request):
+    session = DBSession()
+    meters = session.query(Meter).all()
+    return {'meters': meters}

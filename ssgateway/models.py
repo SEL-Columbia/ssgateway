@@ -1,5 +1,8 @@
 """
 """
+from datetime import datetime
+from datetime import timedelta
+
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import DateTime
@@ -139,6 +142,29 @@ class Meter(Base):
         session = DBSession()
         return session.query(Circuit)\
             .filter_by(meter=self).order_by(Circuit.ip_address)
+
+    def get_main_circuit(self):
+        session = DBSession()
+        return session.query(Circuit).filter_by(meter=self)\
+            .filter_by(ip_address='192.168.1.200').first()
+
+    def find_meter_uptime(self):
+        """
+        cs = # of circuits
+        actual = number messages it did receive
+        possible = Number of messages it should have receive in the last week
+        -> 48 * cs * 7
+        (* (/ actual possible) 100)
+        """
+        now = datetime.now()
+        days = 7
+        last_week = now - timedelta(days=days)
+        session = DBSession()
+        log_count = session.query(PrimaryLog)\
+            .filter_by(circuit=self.get_main_circuit())\
+            .filter(PrimaryLog.meter_time < now)\
+            .filter(PrimaryLog.meter_time > last_week).count()
+        return int((log_count / (48.0 * days)) * 100)
 
 
 class Account(Base):
@@ -452,7 +478,7 @@ class Log(Base):
     """
     __tablename__ = 'logs'
     id = Column(Integer, primary_key=True)
-    gateway_time = Column(DateTime)  # gateway_time
+    meter_time = Column(DateTime)
     _type = Column('type', Unicode(50))
     __mapper_args__ = {'polymorphic_on': _type}
 
@@ -519,7 +545,7 @@ class PrimaryLog(Log):
     watthours = Column(Float)
     use_time = Column(Float)
     status = Column(Integer)
-    meter_time = Column(DateTime)
+    gateway_time = Column(DateTime)
     credit = Column(Float, nullable=True)
     circuit_id = Column(Integer, ForeignKey('circuits.id'))
     circuit = relation(Circuit,

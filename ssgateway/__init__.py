@@ -40,6 +40,10 @@ def main(global_config, **settings):
     config.add_route('edit-user', '/admin/user/{user}/edit')
     # manage groups
     config.add_route('new-group', '/admin/group/new')
+
+    config.add_route('list-meters', '/list-meters')
+    config.add_route('show-meter', '/meter/{meter_id}')
+
     # end routes
 
     config.scan()

@@ -21,7 +21,8 @@
   <tbody>
     %for user in users:
     <tr>
-      <td><a href="${request.route_url('edit-user', user=user.id)}">${user.name}</a></td>
+      <td><a href="${request.route_url('edit-user', user=user.id)}">
+	  ${user.name}</a></td>
       <td>${user.email}</td>
       <td>${user.group}</td>
     </tr>

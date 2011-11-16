@@ -4,5 +4,13 @@
 </%def>
 
 <%def name="body()">
-  <a class="btn" href="${request.route_url('admin-users')}">Manage users and groups</a>
+<div class="well">
+  <a class="btn" 
+     href="${request.route_url('admin-users')}">Manage users and groups</a>  
+  <a class="btn"
+     href="${request.route_url('list-meters')}">Manage meters</a>
+</div>
+
+
+
 </%def>
