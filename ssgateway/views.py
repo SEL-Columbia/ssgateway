@@ -1,11 +1,8 @@
 from pyramid.response import Response
 from pyramid.view import view_config
-from pyramid.httpexceptions import HTTPNotFound, HTTPForbidden, HTTPFound
-from deform import Form
-from deform import ValidationFailure
-import deform
-import colander
+from pyramid.httpexceptions import HTTPNotFound, HTTPFound
 
+from ssgateway.forms import GroupForm, AddUserForm
 from ssgateway.models import DBSession
 from ssgateway.models import Meter
 from ssgateway.models import User
@@ -43,66 +40,34 @@ def admin_user(request):
 @view_config(route_name='new-user', renderer='admin/new-user.mako')
 def new_user(request):
     session = DBSession()
-
-    groups = [[group.id, group.name] for group in session.query(Group).all()]
-
-    class UserSchema(colander.MappingSchema):
-        name = colander.SchemaNode(colander.String())
-        password = colander.SchemaNode(
-            colander.String(),
-            widget=deform.widget.CheckedPasswordWidget(size=20)
-            )
-        email = colander.SchemaNode(colander.String())
-        group_id = colander.SchemaNode(
-            colander.String(),
-            widget=deform.widget.SelectWidget(values=groups)
-            )
-
-    schema = UserSchema()
-    form = Form(schema, buttons=('submit',))
-
-    if request.method == 'POST':
-        try:
-            data = form.validate(request.POST.items())
-            group = session.query(Group).get(data['group_id'])
-            user = User(data['name'], data['password'], data['email'], group)
-            session.add(user)
-            session.flush()
-            return HTTPFound(
-                location=request.route_url('edit-user', user=user.id))
-        except ValidationFailure, e:
-            return {'form': e.render()}
-    elif request.method == 'GET':
-        return {'form': form.render()}
+    form = AddUserForm(request.POST)
+    form.group_id.choices = [
+        [group.id, group.name] for group in session.query(Group).all()]
+    if request.method == 'POST' and form.validate():
+        group = session.query(Group).get(form.group_id.data)
+        user = User(form.name.data, form.password.data, form.email.data, group)
+        session.add(user)
+        return HTTPFound(location=request.route_url('admin-users'))
     else:
-        return HTTPForbidden()
+        return {'form': form}
 
 
 @view_config(route_name='edit-user', renderer='admin/edit-user.mako')
 def edit_user(request):
     user = get_object_or_404(User, request.matchdict.get('user', None))
-    return {'user': user }
-
-
-class GroupSchema(colander.MappingSchema):
-    name = colander.SchemaNode(colander.String())
+    if request.method == 'POST':
+        return {}
+    elif request.method == 'GET':
+        return {'user': user}
 
 
 @view_config(route_name='new-group', renderer='admin/new-group.mako')
 def new_group(request):
     session = DBSession()
-    schema = GroupSchema()
-    form = Form(schema, buttons=('submit'))
-    if request.method == 'POST':
-        try:
-            data = form.validate(request.POST.items())
-            group = Group(data.values())
-            session.add(group)
-            session.flush()
-            return HTTPFound(location=request.route_url('admin-users'))
-        except ValidationFailure, e:
-            return {'form': e.render()}
-    elif request.method == 'GET':
-        return {'form': form.render()}
+    form = GroupForm(request.POST)
+    if request.method == 'POST' and form.validate():
+        group = Group(form.name.data)
+        session.add(group)
+        return HTTPFound(location=request.route_url('admin-users'))
     else:
-        return HTTPForbidden()
+        return {'form': form}

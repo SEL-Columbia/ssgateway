@@ -11,7 +11,7 @@ requires = [
     'pyramid',
     'pyyaml',
     'colander',
-    'deform',
+    'WTForms',
     'nose',
     'coverage',
     'sqlalchemy-migrate',

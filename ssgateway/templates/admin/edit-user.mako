@@ -1,4 +1,4 @@
-<%inherit file="../base.mako"/>
+<%inherit file="admin-base.mako"/>
 
 <%def name="header()">
 

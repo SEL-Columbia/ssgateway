@@ -16,12 +16,14 @@
   <thead>
     <td><strong>User name</strong></td>
     <td><strong>User email</strong></td>
+    <td><strong>User admin level<strong></td>
   </thead>
   <tbody>
     %for user in users:
     <tr>
       <td><a href="${request.route_url('edit-user', user=user.id)}">${user.name}</a></td>
       <td>${user.email}</td>
+      <td>${user.group}</td>
     </tr>
     %endfor  
   </tbody>

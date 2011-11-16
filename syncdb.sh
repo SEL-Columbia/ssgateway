@@ -2,7 +2,7 @@
 # A script to sync your local gateway database with the remove db
 # Ivan Willig 13 June 2011
 TIME=$(date +%y%m%d)
-DB_NAME="gateway"
+DB_NAME="ssgateway"
 echo "Syncing your local database with the remove databae on gateways.sharedsolar.org"
 echo "IMPORTANT; this will destory your exisiting databaes"
 
