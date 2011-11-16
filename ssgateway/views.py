@@ -2,12 +2,14 @@ from pyramid.response import Response
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPNotFound, HTTPFound
 
-from ssgateway.forms import GroupForm, AddUserForm
+from ssgateway.forms import GroupForm
+from ssgateway.forms import AddUserForm
+from ssgateway.forms import AddMeterForm
+
 from ssgateway.models import DBSession
 from ssgateway.models import Meter
 from ssgateway.models import User
 from ssgateway.models import Group
-# from ssgateway.models import PrimaryLog
 
 
 def get_object_or_404(kls, id):
@@ -84,3 +86,12 @@ def list_metes(request):
     session = DBSession()
     meters = session.query(Meter).all()
     return {'meters': meters}
+
+
+@view_config(route_name='new-meter', renderer='meter/new.mako')
+def new_meter(request):
+    form = AddMeterForm(request.POST)
+    if request.method == 'POST' and form.validate():
+        return Response(form.data)
+    else:
+        return {'form': form}

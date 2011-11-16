@@ -6,7 +6,7 @@
 
 <%def name="body()">
 <div class="well">
-  <a class="btn" href="">Add new meter</a>
+  <a class="btn" href="${request.route_url('new-meter')}">Add new meter</a>
   <a class="btn" href="">Add new site</a>
 </div>
 

@@ -42,6 +42,9 @@ def main(global_config, **settings):
     config.add_route('new-group', '/admin/group/new')
 
     config.add_route('list-meters', '/list-meters')
+
+    # maybe these should not be the same url's
+    config.add_route('new-meter', '/meter/new')
     config.add_route('show-meter', '/meter/{meter_id}')
 
     # end routes
