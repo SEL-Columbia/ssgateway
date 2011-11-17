@@ -3,7 +3,7 @@ from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import remember
 from pyramid.security import forget
-import hashlib
+
 
 from ssgateway.forms import AddUserForm
 from ssgateway.forms import EditUserForm
@@ -24,28 +24,31 @@ def login(request):
     """
     session = DBSession()
     came_from = request.params.get('came_from', '/')
-    errors = ''
-    name = 'something is not right'
+    errors = []
+    name = ''
     if request.method == 'POST':
         name = request.POST['name']
-        # consume the user's password and convert it to a md5 hash
-        # which we use to check against the database.
-        password = hashlib.md5(request.params['password']).hexdigest()
         # query the database making sure that a user with both the
         # username and password exists.
-        user = session.query(User)\
-            .filter_by(name=name)\
-            .filter_by(password=password).first()
-        # if we have a user, send them on their way.
-        # else allow them to try again.
-        if user is not None:
+        user = session.query(User).filter_by(name=name).first()
+        if user is None:
+            errors.append(
+                u'Unable to find an user matching (%s)' % name
+                )
+            return {'errors': errors, 'name': '', 'came_from': came_from }
+        if user.check_password(request.params.get('password')):
+            # if we have a user, send them on their way.
+            # else allow them to try again.
             headers = remember(request, user.name)
             return HTTPFound(
                 location='%s' % came_from,
                 headers=headers
                 )
-        errors = u'Unable to log in, please try again'
-    return {'errors': errors, 'name': name}
+        else:
+            errors.append(u'Wrong password, please try again')
+            return {'errors': errors, 'name': name, 'came_from': came_from}
+        errors.append(u'Unable to log in, please try again')
+    return {'errors': errors, 'name': name, 'came_from': came_from }
 
 
 @view_config(route_name='logout')

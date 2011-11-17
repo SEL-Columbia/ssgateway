@@ -22,6 +22,45 @@ DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 Base = declarative_base()
 
 
+class LocationMixin(object):
+    """
+    Mixin to define a location for
+    """
+    x = Column(Numeric)
+    y = Column(Numeric)
+
+
+class DateAddedMixin(object):
+    date_added = Column(DateTime, default=datetime.now())
+
+
+class Organization(DateAddedMixin, Base):
+    __tablename__ = 'organizations'
+    id = Column(Integer, primary_key=True)
+    name = Column(Unicode)
+
+    def __init__(self, name):
+        self.name = name
+
+
+class Country(DateAddedMixin, Base):
+    __tablename__ = 'countries'
+    id = Column(Integer, primary_key=True)
+    name = Column(Unicode)
+
+    def __init__(self, name):
+        self.name = name
+
+
+class Site(LocationMixin, DateAddedMixin, Base):
+    __tablename__ = 'sites'
+    id = Column(Integer, primary_key=True)
+    name = Column(Unicode)
+
+    def __init__(self, name):
+        self.name = name
+
+
 class Group(Base):
     __tablename__ = 'groups'
 
@@ -35,7 +74,7 @@ class Group(Base):
         return '#<Group %s>' % self.name
 
 
-class User(Base):
+class User(DateAddedMixin, Base):
     """
     Users are authorized to log into the Gateway UI
     There are two different groupd, viewers and admins.
@@ -65,6 +104,11 @@ class User(Base):
         self.password = hash
         self.email = email
         self.group = group
+
+    def check_password(self, hash_pass):
+        password = hashlib.md5(hash_pass).hexdigest()
+        if self.password == password:
+            return True
 
     def __repr__(self):
         return '#<User %s>' % self.name

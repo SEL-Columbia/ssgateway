@@ -58,22 +58,45 @@ def main(global_config, **settings):
     config.add_route('edit-user', '/admin/user/{user}/edit')
     # manage groups
     config.add_route('new-group', '/admin/group/new')
+    # manage sites
+    config.add_route('list-sites', '/list-sites')
+    config.add_route('new-site', '/site/new')
 
-    config.add_route('list-meters', '/list-meters')
+    config.add_route('list-organizations', '/list-organization')
+    config.add_route('new-orgainzation', '/organization/new')
+
+    config.add_route('list-countries', '/list-countries')
+    config.add_route('new-country', '/country/new')
 
     # maybe these should not be the same url's
+    config.add_route('list-meters', '/list-meters')
     config.add_route('new-meter', '/meter/new')
     config.add_route('show-meter', '/meter/{meter_id}')
+
+    # vendor applications
+    config.add_route('list-devices', '/list-devices')
+    config.add_route('new-device', '/device/new')
+
+    # tokens urls.
+    config.add_route('list-tokens', '/list-tokens')
+    config.add_route('make-tokens', '/manage/make_tokens')
+    config.add_route('update_tokens', '/manage/update_tokens')
+    # message relays
+    config.add_route('list-relays', '/list-relays')
+    config.add_route('new-relay', '/message-relay/new')
+
+    # messages
 
     config.add_route('list-messages', '/messages/list')
     config.add_route('show-message', '/message/index/{message}')
     config.add_route('meter-messages', '/messages/show')
 
-    # tokens urls.
-    config.add_route('make-tokens', '/manage/make_tokens')
-    config.add_route('update_tokens', '/manage/update_tokens')
-    # end routes
+    # alerts and alarms
+    config.add_route('list-alerts', '/list-alerts')
+    config.add_route('send-message', '/send/message')
+    config.add_route('check-comm-gaps', '/check-comm-gaps')
 
+    # end routes
     config.scan()
 
     # return the wsgi application

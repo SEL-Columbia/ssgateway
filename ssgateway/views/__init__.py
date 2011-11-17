@@ -12,6 +12,7 @@ from ssgateway.models import TimeZone
 from ssgateway.models import Circuit
 from ssgateway.models import Account
 from ssgateway.views.utils import process_form
+from ssgateway.views.utils import get_object_or_404
 
 
 @view_config(route_name='index', renderer='index.mako', permission='vistor')
@@ -50,6 +51,12 @@ def list_metes(request):
     return {'meters': meters}
 
 
+@view_config(route_name='show-meter', renderer='meter/show.mako')
+def show_meter(request):
+    meter = get_object_or_404(Meter, request.matchdict.get('meter_id'))
+    return {'meter': meter}
+
+
 @view_config(route_name='new-meter', renderer='meter/new.mako')
 def new_meter(request):
     """
@@ -76,7 +83,7 @@ def new_meter(request):
             # create an account for each circuit
             account = Account('default-account', '', form.language.data)
             session.add(account)
-            # create the circuit
+            # create the circuit1
             circuit = Circuit(
                 meter,
                 account,
