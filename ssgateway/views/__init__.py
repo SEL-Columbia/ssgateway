@@ -1,3 +1,4 @@
+from datetime import datetime
 from pyramid.response import Response
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPFound
@@ -9,6 +10,15 @@ from ssgateway.models import DBSession
 from ssgateway.models import Meter
 from ssgateway.models import Group
 from ssgateway.models import TimeZone
+from ssgateway.models import Circuit
+from ssgateway.models import Account
+
+
+def _process_form(request, form, post_validate_fn):
+    if request.method == 'POST' and form.validate():
+        return post_validate_fn(form)
+    else:
+        return {'form': form}
 
 
 @view_config(route_name='index', renderer='index.mako', permission='vistor')
@@ -19,8 +29,7 @@ def index(request):
     return {}
 
 
-@view_config(route_name='new-group',
-             renderer='admin/new-group.mako', permission='admin')
+@view_config(route_name='new-group', renderer='admin/new-group.mako',)
 def new_group(request):
     """
     A view function to add a new admin group to the Gateway.
@@ -28,12 +37,12 @@ def new_group(request):
     """
     session = DBSession()
     form = GroupForm(request.POST)
-    if request.method == 'POST' and form.validate():
+
+    def post_validate(form):
         group = Group(form.name.data)
         session.add(group)
         return HTTPFound(location=request.route_url('admin-users'))
-    else:
-        return {'form': form}
+    return _process_form(request, form, post_validate)
 
 
 @view_config(route_name='list-meters', renderer='list-meters.mako')
@@ -56,19 +65,39 @@ def new_meter(request):
     """
     session = DBSession()
     form = AddMeterForm(request.POST)
-    form.time_zone.choices = [
-        [t.id, t.zone] for t in session.query(TimeZone).all()]
-    if request.method == 'POST' and form.validate():
-        tz = session.query(TimeZone).get(form.timezone.data)
+    form.time_zone.query = session.query(TimeZone).all()
+
+    def post_validate(form):
         meter = Meter(form.name.data,
                       form.phone.data,
                       form.location.data,
-                      tz,
+                      form.time_zone.data,
+                      True,
+                      datetime.now(),
                       form.battery_capacity.data,
-                      form.panel_capacity)
-        # todo, add the assoicated circuits.
+                      form.panel_capacity.data)
         session.add(meter)
+        start_ip_address = 200
+        for x in range(0, int(form.number_of_circuits.data)):
+            ip_address = '192.168.1.%s' % (start_ip_address + x)
+            # create an account for each circuit
+            account = Account('default-account', '', form.language.data)
+            session.add(account)
+            # create the circuit
+            circuit = Circuit(
+                meter,
+                account,
+                datetime.now(),
+                Circuit.get_pin(),
+                form.pmax.data,
+                form.emax.data,
+                ip_address,
+                0,
+                0)
+            session.add(circuit)
+        # flush the session so i can send the user to the meter's id
         session.flush()
-        return Response(form.data)
-    else:
-        return {'form': form}
+        return HTTPFound(
+            location=request.route_url('show-meter', meter_id=meter.id)
+            )
+    return _process_form(request, form, post_validate)

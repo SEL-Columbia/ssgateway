@@ -26,7 +26,6 @@ def main(global_config, **settings):
 
     # add the static url for development
     config.add_static_view('static', 'ssgateway:static')
-    config.add_static_view('deform', 'deform:static')
 
     # add the routes
     config.add_route('index', '/')
@@ -46,6 +45,9 @@ def main(global_config, **settings):
     config.add_route('new-meter', '/meter/new')
     config.add_route('show-meter', '/meter/{meter_id}')
 
+    config.add_route('list-messages', '/messages/list')
+    config.add_route('show-message', '/message/index/{message}')
+    config.add_route('meter-messages', '/messages/show')
     # end routes
 
     config.scan()

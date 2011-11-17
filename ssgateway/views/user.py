@@ -69,8 +69,7 @@ def edit_user(request):
     session = DBSession()
     user = get_object_or_404(User, request.matchdict.get('user'))
     form = EditUserForm(request.POST, obj=user)
-    form.group_id.choices = [
-        [group.id, group.name] for group in session.query(Group).all()]
+    form.group.query = session.query(Group).all()
     if request.method == 'POST' and form.validate():
         group = session.query(Group).get(form.group_id.data)
         user.name = form.name.data
@@ -104,11 +103,12 @@ def new_user(request):
     """
     session = DBSession()
     form = AddUserForm(request.POST)
-    form.group_id.choices = [
-        [group.id, group.name] for group in session.query(Group).all()]
+    form.group.query = session.query(Group).all()
     if request.method == 'POST' and form.validate():
-        group = session.query(Group).get(form.group_id.data)
-        user = User(form.name.data, form.password.data, form.email.data, group)
+        user = User(form.name.data,
+                    form.password.data,
+                    form.email.data,
+                    form.group.data)
         session.add(user)
         return HTTPFound(location=request.route_url('admin-users'))
     else:
