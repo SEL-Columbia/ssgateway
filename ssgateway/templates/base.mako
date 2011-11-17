@@ -12,7 +12,7 @@
       <div class="fill">
         <div class="container">
           <h3 class="band">
-	    <a href="${request.application_url}">Shared Solar Gateway</a></h3>
+	    <a href="${request.application_url}">SharedSolar Gateway</a></h3>
 	    ${forms.login_form()}
 	  </div>
       </div>

@@ -6,17 +6,24 @@
 
 <%def name="body()">
 %for error in errors:
-   <p>${error}</p>
+
+  <span><p>${error}</p></span>
 %endfor
 
 <form method="POST" class="" action="${request.route_url('login')}">
 
   <input type="hidden" name="came_from" value="${came_from}" />
   <div class="clearfix">
-    <input class="" type="text" value="${name}" name="name" placeholder="Username" />
+    <label>Username</label>
+    <div class="input">
+      <input class="xlarge" type="text" value="${name}" name="name" placeholder="Username" />
+    </div>
   </div>
   <div class="clearfix">
-    <input class="" type="password" name="password" value="" placeholder="Password" />
+    <label>Password</label>
+    <div class="input">
+      <input class="xlarge" type="password" name="password" value="" placeholder="Password" />
+    </div>
   </div>
 
 
