@@ -48,6 +48,7 @@ def login(request):
     return {'errors': errors, 'name': name}
 
 
+@view_config(route_name='logout')
 def logout(request):
     """
     View function that allows users to log out of the Gateway.
