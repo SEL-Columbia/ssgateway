@@ -20,7 +20,7 @@ class AddUserForm(Form):
     """
     name = TextField('Username', [validators.Length(min=4, max=25)])
     password = PasswordField('Password', [validators.Length(min=4, max=25)])
-    email = TextField('Email', [])
+    email = TextField('Email', [validators.Length(min=4, max=25)])
     group = QuerySelectField(get_label='name')
 
 
