@@ -24,8 +24,8 @@ def make_tokens(request):
     if not 'device_id' in data:
         return Response('You must provide an device_id')
     else:
-        device = session.query(Device)\
-            .filter_by(device_id=data['device_id']).first()
+        device = session.query(
+            Device).filter_by(device_id=data['device_id']).first()
         if device:
             if not 'tokens' in data:
                 return Response('You must provide an amount of tokens')
@@ -62,7 +62,7 @@ def update_tokens(request):
                 .filter_by(token=i['token_id']).first()
             if token:
                 circuit = session.query(Circuit)\
-                    .filter_by(pin=i['account_id'])
+                    .filter_by(pin=i['account_id']).first()
                 if circuit:
                     job = AddCredit(token.value, circuit, token)
                     session.add(job)
