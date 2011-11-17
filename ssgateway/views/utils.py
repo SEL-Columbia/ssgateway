@@ -2,6 +2,13 @@ from ssgateway.models import DBSession
 from pyramid.httpexceptions import HTTPNotFound
 
 
+def process_form(request, form, post_validate_fn):
+    if request.method == 'POST' and form.validate():
+        return post_validate_fn(form)
+    else:
+        return {'form': form}
+
+
 def get_object_or_404(kls, id):
     """
     Function to find an object from the database by its id.

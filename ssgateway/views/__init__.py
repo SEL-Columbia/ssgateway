@@ -1,5 +1,4 @@
 from datetime import datetime
-from pyramid.response import Response
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPFound
 
@@ -12,13 +11,7 @@ from ssgateway.models import Group
 from ssgateway.models import TimeZone
 from ssgateway.models import Circuit
 from ssgateway.models import Account
-
-
-def _process_form(request, form, post_validate_fn):
-    if request.method == 'POST' and form.validate():
-        return post_validate_fn(form)
-    else:
-        return {'form': form}
+from ssgateway.views.utils import process_form
 
 
 @view_config(route_name='index', renderer='index.mako', permission='vistor')
@@ -42,7 +35,7 @@ def new_group(request):
         group = Group(form.name.data)
         session.add(group)
         return HTTPFound(location=request.route_url('admin-users'))
-    return _process_form(request, form, post_validate)
+    return process_form(request, form, post_validate)
 
 
 @view_config(route_name='list-meters', renderer='list-meters.mako')
@@ -100,4 +93,4 @@ def new_meter(request):
         return HTTPFound(
             location=request.route_url('show-meter', meter_id=meter.id)
             )
-    return _process_form(request, form, post_validate)
+    return process_form(request, form, post_validate)
