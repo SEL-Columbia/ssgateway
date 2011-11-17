@@ -25,9 +25,9 @@ def login(request):
     session = DBSession()
     came_from = request.params.get('came_from', '/')
     errors = ''
-    name = ''
-    if 'form.submitted' in request.params:
-        name = request.params['name']
+    name = 'something is not right'
+    if request.method == 'POST':
+        name = request.POST['name']
         # consume the user's password and convert it to a md5 hash
         # which we use to check against the database.
         password = hashlib.md5(request.params['password']).hexdigest()
@@ -41,7 +41,7 @@ def login(request):
         if user is not None:
             headers = remember(request, user.name)
             return HTTPFound(
-                location=came_from,
+                location='%s' % came_from,
                 headers=headers
                 )
         errors = u'Unable to log in, please try again'
