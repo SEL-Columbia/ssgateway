@@ -48,6 +48,10 @@ def main(global_config, **settings):
     config.add_route('list-messages', '/messages/list')
     config.add_route('show-message', '/message/index/{message}')
     config.add_route('meter-messages', '/messages/show')
+
+    # tokens urls.
+    config.add_route('make-tokens', '/manage/make_tokens')
+    config.add_route('update_tokens', '/manage/update_tokens')
     # end routes
 
     config.scan()
