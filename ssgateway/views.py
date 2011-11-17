@@ -1,6 +1,10 @@
 from pyramid.response import Response
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPNotFound, HTTPFound
+from pyramid.security import remember
+from pyramid.security import forget
+import hashlib
+
 
 from ssgateway.forms import GroupForm
 from ssgateway.forms import AddUserForm
@@ -51,7 +55,30 @@ def login(request):
 
     Returns a HTTPFound to the user's last locating.
     """
-    return Response()
+    session = DBSession()
+    came_from = request.params.get('came_from', '/')
+    errors = ''
+    name = ''
+    if 'form.submitted' in request.params:
+        name = request.params['name']
+        # consume the user's password and convert it to a md5 hash
+        # which we use to check against the database.
+        password = hashlib.md5(request.params['password']).hexdigest()
+        # query the database making sure that a user with both the
+        # username and password exists.
+        user = session.query(User)\
+            .filter_by(name=name)\
+            .filter_by(password=password).first()
+        # if we have a user, send them on their way.
+        # else allow them to try again.
+        if user is not None:
+            headers = remember(request, user.name)
+            return HTTPFound(
+                location=came_from,
+                headers=headers
+                )
+        errors = u'Unable to log in, please try again'
+    return {'errors': errors, 'name': name}
 
 
 def logout(request):
@@ -59,6 +86,11 @@ def logout(request):
     View function that allows users to log out of the Gateway.
     Returns the user to the home page of the Gateway.
     """
+    headers = forget(request)
+    return HTTPFound(
+        headers=headers,
+        location=request.application_url
+        )
 
 
 @view_config(route_name='admin-users', renderer='admin/users.mako')

@@ -20,21 +20,27 @@
 
     <div class="topbar">      
       <div class="fill">
-          <div class="container">
-            <h3 class="band">
-	      <a href="${request.application_url}">Shared Solar Gateway</a></h3>
-                <form method="POST" class="pull-right" action="">
-		  <input class="input-small" 
-			 type="text" 
-			 name="name" 
-			 placeholder="Username" />
-		  <input clasas="input-small" 
-			 type="password" 
-			 name="password"
-			 placeholder="Password" />
-		  <button type="submit" class="btn">Sign in</button>
-	    </form>
+        <div class="container">
+          <h3 class="band">
+	    <a href="${request.application_url}">Shared Solar Gateway</a></h3>
 
+          <form method="POST" 
+		class="pull-right" 
+		action="${request.route_url('login')}">
+	    <input type="hidden" 
+		   name="came_from" 
+		   value="${request.current_route_url()}" />
+	    <input class="input-small"
+		   type="text" 
+		   name="name" 
+		   placeholder="Username" />
+	    <input class="input-small" 
+		   type="password" 
+		   name="password" 
+		   value="" 
+		   placeholder="Password" />
+	    <button type="submit" class="btn">Sign in</button>
+	  </form>
 	  </div>
       </div>
     </div>
