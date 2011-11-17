@@ -14,7 +14,7 @@ from ssgateway.models import TimeZone
 @view_config(route_name='index', renderer='index.mako', permission='vistor')
 def index(request):
     """
-    Main view function for the gateway ui. Current does very little.
+    Main view function for the gateway ui. Currently does very little.
     """
     return {}
 
@@ -66,6 +66,7 @@ def new_meter(request):
                       tz,
                       form.battery_capacity.data,
                       form.panel_capacity)
+        # todo, add the assoicated circuits.
         session.add(meter)
         session.flush()
         return Response(form.data)
