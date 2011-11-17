@@ -2,7 +2,27 @@ from pyramid_beaker import session_factory_from_settings
 from pyramid.config import Configurator
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
+from pyramid.events import subscriber
+from pyramid.events import BeforeRender
+from pyramid.threadlocal import get_current_request
+from pyramid.security import authenticated_userid
+
 from ssgateway.models import initialize_sql
+
+
+@subscriber(BeforeRender)
+def add_global(event):
+    """
+    Add the user object to the global env do we don't have to pass a
+    user object to each view function.
+    From
+    http://docs.pylonsproject.org/projects/pyramid/1.2/narr/hooks.html#using-the-before-render-event
+    """
+    request = event.get('request')
+    if request is None:
+        request = get_current_request()
+    globs = {'user': authenticated_userid(request)}
+    event.update(globs)
 
 
 def main(global_config, **settings):
