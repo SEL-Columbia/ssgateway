@@ -53,7 +53,7 @@ def login(request):
     system. Checks the sanity of the user's input and then makes sure
     that we have a the user in the database.
 
-    Returns a HTTPFound to the user's last locating.
+    Returns a HTTPFound to the user's last location.
     """
     session = DBSession()
     came_from = request.params.get('came_from', '/')
